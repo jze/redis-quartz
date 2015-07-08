@@ -1076,7 +1076,7 @@ public class RedisJobStore implements JobStore {
 			
 			Gson gson = new Gson();
 			Class calClass = Class.forName(jedis.hget(calendarHashKey, CALENDAR_CLASS));
-			calendar = gson.fromJson(jedis.hget(calendarHashKey, CALENDAR_SERIALIZED), calClass);			
+			calendar = (Calendar) gson.fromJson(jedis.hget(calendarHashKey, CALENDAR_SERIALIZED), calClass);			
 		} catch (ClassNotFoundException ex) {
 			log.warn("class not found for calendar: " + calName, ex);
 		}
@@ -1893,7 +1893,7 @@ public class RedisJobStore implements JobStore {
 
 	@Override
 	public void releaseAcquiredTrigger(OperableTrigger trigger)
-			throws JobPersistenceException {
+			  {
 		Jedis jedis = pool.getResource();
 		try {
 			lock();
@@ -1907,7 +1907,7 @@ public class RedisJobStore implements JobStore {
 			}						
 		} catch(Exception ex) {
 			log.error("could not release acquired triggers", ex);
-			throw new JobPersistenceException(ex.getMessage(), ex.getCause());
+			throw new RuntimeException(ex.getMessage(), ex.getCause());
 		} finally {
 			pool.returnResource(jedis);
 			unlock();
@@ -1991,7 +1991,7 @@ public class RedisJobStore implements JobStore {
 	@Override
 	public void triggeredJobComplete(OperableTrigger trigger,
 			JobDetail jobDetail, CompletedExecutionInstruction triggerInstCode)
-			throws JobPersistenceException {
+			  {
 		String jobHashKey = createJobHashKey(jobDetail.getKey().getGroup(), jobDetail.getKey().getName());
 		String jobDataMapHashKey = createJobDataMapHashKey(jobDetail.getKey().getGroup(), jobDetail.getKey().getName());
 		String triggerHashKey = createTriggerHashKey(trigger.getKey().getGroup(), trigger.getKey().getName());
@@ -2075,7 +2075,7 @@ public class RedisJobStore implements JobStore {
 			}			
 		} catch(Exception ex) {
 			log.error("could not handle triggegered job completion", ex);
-			throw new JobPersistenceException(ex.getMessage(), ex.getCause());
+			throw new RuntimeException(ex.getMessage(), ex.getCause());
 		} finally {
 			pool.returnResource(jedis);
 			unlock();
